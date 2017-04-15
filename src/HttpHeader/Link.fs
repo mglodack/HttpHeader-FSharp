@@ -3,11 +3,11 @@
 open System
 open System.Text.RegularExpressions
 
-module LinkParser =
+module Link =
     let private _splitPattern = ",\s*<"
     let private _relationMatchPattern = "\s*(.+)\s*=\s*\"?([^\"]+)\"?"
 
-    type LinkDirection = Next | Previous | Undetermined
+    type Relation = Next | Previous | Undetermined
 
     let (|MatchNext|_|) (str : String) =
         match (str.ToLower()) with
@@ -23,8 +23,8 @@ module LinkParser =
 
     let SplitUrlAndRelation part = Regex.Split(part, ";")
 
-    let DetermineDirection relation =
-        let _match = Regex.Match(relation, _relationMatchPattern)
+    let ParseRelation unkownRelation =
+        let _match = Regex.Match(unkownRelation, _relationMatchPattern)
         let relationValue = _match.Groups.[2].Value
 
         match relationValue with
@@ -42,7 +42,7 @@ module LinkParser =
                 let relation = split |> Array.last
 
                 let sanitizedUrl = Regex.Replace(dirtyUrl, "[<>]", "")
-                let direction = DetermineDirection relation
+                let direction = ParseRelation relation
 
                 Some (sanitizedUrl, direction)
             else
