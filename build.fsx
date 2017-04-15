@@ -3,21 +3,38 @@
 open Fake
 open Fake.Testing.XUnit2
 
-Target "Clean" (fun _ -> printfn "Clean output here.")
+let private msbuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
+let private testAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
+let private solutionFile = "HttpHeader.sln"
+
+Target "RestorePackages" (fun _ ->
+  solutionFile
+  |> RestoreMSSolutionPackages (fun p ->
+      { p with
+          OutputPath = "packages"
+      })
+)
+
+Target "Clean" (fun _ ->
+  DeleteFiles msbuildArtifacts
+
+  [ "bin"; "packages"; ]
+  |> Seq.iter CleanDir
+)
 
 Target "Test" (fun _ ->
-  !! (@"**\*\bin\**\*Tests.dll")
+  testAssemblies
   |> xUnit2 id
 )
 
 Target "MSBuild" (fun _ ->
-  !! ("*.sln")
+  [ solutionFile ]
   |> MSBuildRelease "bin" "Build"
   |> ignore
 )
 
 Target "CI" id
 
-"CI" <== [ "Test"; "MSBuild" ]
+"CI" <== [ "Clean"; "RestorePackages"; "MSBuild"; "Test"]
 
-RunTargetOrDefault "Hello"
+RunTargetOrDefault "CI"
