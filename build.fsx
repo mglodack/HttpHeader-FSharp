@@ -4,7 +4,7 @@ open Fake
 open Fake.Testing.XUnit2
 
 let private msbuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
-let private testAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
+let private testAssemblies = !! "bin/*.Tests.dll"
 let private solutionFile = "HttpHeader.sln"
 
 Target "RestorePackages" (fun _ ->
@@ -24,7 +24,10 @@ Target "Clean" (fun _ ->
 
 Target "Test" (fun _ ->
   testAssemblies
-  |> xUnit2 id
+  |> xUnit2 (fun p ->
+      { p with
+          WorkingDir = Some "bin"
+      })
 )
 
 Target "MSBuild" (fun _ ->
