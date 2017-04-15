@@ -1,4 +1,4 @@
-﻿module LinkParserTests
+﻿module LinkTests
 
 open Xunit
 open HttpHeader
@@ -7,25 +7,25 @@ open HttpHeader
 let ``Relation of value next should return Next LinkDirection``() =
   let relation = "rel=\"next\""
 
-  Assert.Equal(LinkParser.LinkDirection.Next, (LinkParser.DetermineDirection relation))
+  Assert.Equal(Link.Relation.Next, (Link.ParseRelation relation))
 
 [<Fact>]
 let ``Relation of value prev should return Previous LinkDirection``() =
   let relation = "rel=\"prev\""
 
-  Assert.Equal(LinkParser.LinkDirection.Previous, (LinkParser.DetermineDirection relation))
+  Assert.Equal(Link.Relation.Previous, (Link.ParseRelation relation))
 
 [<Fact>]
 let ``Relation of value previous should return Previous LinkDirection``() =
   let relation = "rel=\"previous\""
 
-  Assert.Equal(LinkParser.LinkDirection.Previous, (LinkParser.DetermineDirection relation))
+  Assert.Equal(Link.Relation.Previous, (Link.ParseRelation relation))
 
 [<Fact>]
 let ``Relation of value junk should return Undetermined LinkDirection``() =
   let relation = "rel=\"junk\""
 
-  Assert.Equal(LinkParser.LinkDirection.Undetermined, (LinkParser.DetermineDirection relation))
+  Assert.Equal(Link.Relation.Undetermined, (Link.ParseRelation relation))
 
 [<Fact>]
 let ``Parse full Link with relation value of next should return Next as direction and url``() =
@@ -33,7 +33,7 @@ let ``Parse full Link with relation value of next should return Next as directio
 
   let expectedUrl = "https://api.example.foobar.com/this/path/is/cool"
 
-  let result = LinkParser.Parse toParse
+  let result = Link.Parse toParse
   let onlySomeResult = Array.choose id result
   let (url, direction) = Array.head onlySomeResult
 
@@ -41,7 +41,7 @@ let ``Parse full Link with relation value of next should return Next as directio
   Assert.NotEmpty onlySomeResult
   Assert.Equal(1, (Array.length onlySomeResult))
   Assert.Equal(expectedUrl, url)
-  Assert.Equal(LinkParser.LinkDirection.Next, direction)
+  Assert.Equal(Link.Relation.Next, direction)
 
 [<Fact>]
 let ``Parse full Link with relation value of previous should return Previous as direction and url``() =
@@ -49,7 +49,7 @@ let ``Parse full Link with relation value of previous should return Previous as 
 
   let expectedUrl = "https://api.example.foobar.com/this/path/is/cool"
 
-  let result = LinkParser.Parse toParse
+  let result = Link.Parse toParse
   let onlySomeResult = Array.choose id result
   let (url, direction) = Array.head onlySomeResult
 
@@ -57,7 +57,7 @@ let ``Parse full Link with relation value of previous should return Previous as 
   Assert.NotEmpty onlySomeResult
   Assert.Equal(1, (Array.length onlySomeResult))
   Assert.Equal(expectedUrl, url)
-  Assert.Equal(LinkParser.LinkDirection.Previous, direction)
+  Assert.Equal(Link.Relation.Previous, direction)
 
 [<Fact>]
 let ``Parse full Link with both directions``() =
@@ -66,7 +66,7 @@ let ``Parse full Link with both directions``() =
   let expectedNextPageUrl = "https://api.foobar.com/next_page"
   let expectedPreviousPageUrl = "https://api.foobar.com/prev_page"
 
-  let result = LinkParser.Parse toParse
+  let result = Link.Parse toParse
   let onlySomeResult = Array.choose id result
 
   Assert.NotEmpty result
@@ -78,9 +78,9 @@ let ``Parse full Link with both directions``() =
 
   let (nextUrl, nextDirection) = fstResult
   Assert.Equal(expectedNextPageUrl, nextUrl)
-  Assert.Equal(LinkParser.LinkDirection.Next, nextDirection)
+  Assert.Equal(Link.Relation.Next, nextDirection)
 
   let (prevUrl, prevDirection) = sndResult
   Assert.Equal(expectedPreviousPageUrl, prevUrl)
-  Assert.Equal(LinkParser.LinkDirection.Previous, prevDirection)
+  Assert.Equal(Link.Relation.Previous, prevDirection)
 
