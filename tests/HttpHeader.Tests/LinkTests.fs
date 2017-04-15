@@ -1,4 +1,4 @@
-﻿module LinkParserTests
+﻿module LinkTests
 
 open Xunit
 open HttpHeader
