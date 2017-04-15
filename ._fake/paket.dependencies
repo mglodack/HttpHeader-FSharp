@@ -2,3 +2,6 @@ source https://nuget.org/api/v2
 
 nuget FAKE
 nuget FSharp.Version.Utils
+nuget xunit.runner.console 2.1.0
+nuget xunit 2.1.0
+
