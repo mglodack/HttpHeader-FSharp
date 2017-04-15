@@ -7,18 +7,17 @@ module LinkParser =
     let private _splitPattern = ",\s*<"
     let private _relationMatchPattern = "\s*(.+)\s*=\s*\"?([^\"]+)\"?"
 
-    type LinkDirection = Next | Prev | Undetermined
+    type LinkDirection = Next | Previous | Undetermined
 
-    let (|N|_|) (str : String) =
+    let (|MatchNext|_|) (str : String) =
         match (str.ToLower()) with
-        | "next" -> Some Next
-        | _ -> Some Undetermined
+        | "next"  -> Some Next
+        | _       -> None
 
-    let (|P|_|) (str : String) =
+    let (|MatchPrevious|_|) (str : String) =
         match (str.ToLower()) with
-        | "prev" -> Some Prev
-        | "previous" -> Some Prev
-        | _ -> Some Undetermined
+        | "prev" | "previous" -> Some Previous
+        | _                   -> None
 
     let SplitContainsTwoItems array = Array.length array = 2
 
@@ -29,9 +28,9 @@ module LinkParser =
         let relationValue = _match.Groups.[2].Value
 
         match relationValue with
-        | P direction -> direction
-        | N direction -> direction
-        | _ -> Undetermined
+        | MatchNext     direction -> direction
+        | MatchPrevious direction -> direction
+        | _                       -> Undetermined
 
     let Parse value =
         Regex.Split(value, _splitPattern)
